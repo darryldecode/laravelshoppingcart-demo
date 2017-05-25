@@ -168,6 +168,7 @@ return [
          */
         Laravel\Tinker\TinkerServiceProvider::class,
         Darryldecode\Cart\CartServiceProvider::class,
+        \App\Providers\WishListProvider::class,
 
         /*
          * Application Service Providers...

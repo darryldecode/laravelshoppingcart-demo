@@ -93,6 +93,78 @@
         </div>
     </div>
 </div>
+<div class="row" id="wishlist">
+    <div class="container cart">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h2>ADD WISHLIST ITEM</h2>
+                        <div class="form-group form-group-sm">
+                            <label>ID</label>
+                            <input v-model="item.id" class="form-control" placeholder="Id">
+                        </div>
+                        <div class="form-group form-group-sm">
+                            <label>Name</label>
+                            <input v-model="item.name" class="form-control" placeholder="Name">
+                        </div>
+                        <div class="form-group form-group-sm">
+                            <label>Price</label>
+                            <input v-model="item.price" class="form-control" placeholder="Price">
+                        </div>
+                        <div class="form-group form-group-sm">
+                            <label>Qty</label>
+                            <input v-model="item.qty" class="form-control" placeholder="Quantity">
+                        </div>
+                        <button v-on:click="addItem()" class="btn btn-primary">Add Item</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="item in items">
+                        <td>@{{ item.id }}</td>
+                        <td>@{{ item.name }}</td>
+                        <td>@{{ item.quantity }}</td>
+                        <td>@{{ item.price }}</td>
+                        <td>
+                            <button v-on:click="removeItem(item.id)" class="btn btn-sm btn-danger">remove</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <table class="table">
+                    <tr>
+                        <td>Items on Cart:</td>
+                        <td>@{{itemCount}}</td>
+                    </tr>
+                    <tr>
+                        <td>Total Qty:</td>
+                        <td>@{{ details.total_quantity }}</td>
+                    </tr>
+                    <tr>
+                        <td>Sub Total:</td>
+                        <td>@{{ '$' + details.sub_total.toFixed(2) }}</td>
+                    </tr>
+                    <tr>
+                        <td>Total:</td>
+                        <td>@{{ '$' + details.total.toFixed(2) }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 <script
         src="https://code.jquery.com/jquery-3.2.1.min.js"
         integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
@@ -111,7 +183,13 @@
             var app = new Vue({
                 el: '#app',
                 data: {
-                    details: 0,
+                    details: {
+                        data: {
+                            sub_total: 0,
+                            total: 0,
+                            total_quantity: 0
+                        }
+                    },
                     itemCount: 0,
                     items: [],
                     item: {
@@ -176,6 +254,88 @@
                         var _this = this;
 
                         this.$http.get('/cart/details').then(function(success) {
+                            _this.details = success.body.data;
+                        }, function(error) {
+                            console.log(error);
+                        });
+                    }
+                }
+            });
+
+            var wishlist = new Vue({
+                el: '#wishlist',
+                data: {
+                    details: {
+                        data: {
+                            sub_total: 0,
+                            total: 0,
+                            total_quantity: 0
+                        }
+                    },
+                    itemCount: 0,
+                    items: [],
+                    item: {
+                        id: '',
+                        name: '',
+                        price: 0.00,
+                        qty: 1
+                    }
+                },
+                mounted:function(){
+                    this.loadItems();
+                },
+                methods: {
+                    addItem: function() {
+
+                        var _this = this;
+
+                        this.$http.post('/wishlist',{
+                            _token:_token,
+                            id:_this.item.id,
+                            name:_this.item.name,
+                            price:_this.item.price,
+                            qty:_this.item.qty
+                        }).then(function(success) {
+                            _this.loadItems();
+                        }, function(error) {
+                            console.log(error);
+                        });
+                    },
+                    removeItem: function(id) {
+
+                        var _this = this;
+
+                        this.$http.delete('/wishlist/'+id,{
+                            params: {
+                                _token:_token
+                            }
+                        }).then(function(success) {
+                            _this.loadItems();
+                        }, function(error) {
+                            console.log(error);
+                        });
+                    },
+                    loadItems: function() {
+
+                        var _this = this;
+
+                        this.$http.get('/wishlist',{
+                            params: {
+                                limit:10
+                            }
+                        }).then(function(success) {
+                            _this.items = success.body.data;
+                            _this.itemCount = success.body.data.length;
+                            _this.loadCartDetails();
+                        }, function(error) {
+                            console.log(error);
+                        });
+                    },
+                    loadCartDetails: function() {
+
+                        var _this = this;
+
+                        this.$http.get('/wishlist/details').then(function(success) {
                             _this.details = success.body.data;
                         }, function(error) {
                             console.log(error);
