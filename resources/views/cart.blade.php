@@ -184,11 +184,9 @@
                 el: '#app',
                 data: {
                     details: {
-                        data: {
-                            sub_total: 0,
-                            total: 0,
-                            total_quantity: 0
-                        }
+                        sub_total: 0,
+                        total: 0,
+                        total_quantity: 0
                     },
                     itemCount: 0,
                     items: [],
@@ -266,11 +264,9 @@
                 el: '#wishlist',
                 data: {
                     details: {
-                        data: {
-                            sub_total: 0,
-                            total: 0,
-                            total_quantity: 0
-                        }
+                        sub_total: 0,
+                        total: 0,
+                        total_quantity: 0
                     },
                     itemCount: 0,
                     items: [],
