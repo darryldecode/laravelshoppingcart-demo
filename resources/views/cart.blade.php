@@ -28,6 +28,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <h2>ADD CART ITEM</h2>
+                        <p>(This is using custom database storage)</p>
                         <div class="form-group form-group-sm">
                             <label>ID</label>
                             <input v-model="item.id" class="form-control" placeholder="Id">
@@ -100,6 +101,7 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <h2>ADD WISHLIST ITEM</h2>
+                        <p>(This is using default session storage)</p>
                         <div class="form-group form-group-sm">
                             <label>ID</label>
                             <input v-model="item.id" class="form-control" placeholder="Id">

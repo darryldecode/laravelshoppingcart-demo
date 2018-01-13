@@ -13,11 +13,13 @@ class CartController extends Controller
 {
     public function index()
     {
+        $userId = 1; // get this from session or wherever it came from
+
         if(request()->ajax())
         {
             $items = [];
 
-            \Cart::getContent()->each(function($item) use (&$items)
+            \Cart::session($userId)->getContent()->each(function($item) use (&$items)
             {
                 $items[] = $item;
             });
@@ -36,17 +38,32 @@ class CartController extends Controller
 
     public function add()
     {
+        $userId = 1; // get this from session or wherever it came from
+
         $id = request('id');
         $name = request('name');
         $price = request('price');
         $qty = request('qty');
 
-        \Cart::add($id, $name, $price, $qty, array());
+        $customAttributes = [
+            'color_attr' => [
+                'label' => 'red',
+                'price' => 10.00,
+            ],
+            'size_attr' => [
+                'label' => 'xxl',
+                'price' => 15.00,
+            ]
+        ];
+
+        \Cart::session($userId)->add($id, $name, $price, $qty, $customAttributes);
     }
 
     public function delete($id)
     {
-        \Cart::remove($id);
+        $userId = 1; // get this from session or wherever it came from
+
+        \Cart::session($userId)->remove($id);
 
         return response(array(
             'success' => true,
@@ -57,12 +74,14 @@ class CartController extends Controller
 
     public function details()
     {
+        $userId = 1; // get this from session or wherever it came from
+
         return response(array(
             'success' => true,
             'data' => array(
-                'total_quantity' => \Cart::getTotalQuantity(),
-                'sub_total' => \Cart::getSubTotal(),
-                'total' => \Cart::getTotal(),
+                'total_quantity' => \Cart::session($userId)->getTotalQuantity(),
+                'sub_total' => \Cart::session($userId)->getSubTotal(),
+                'total' => \Cart::session($userId)->getTotal(),
             ),
             'message' => "Get cart details success."
         ),200,[]);
