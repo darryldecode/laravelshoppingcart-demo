@@ -151,7 +151,7 @@ class CartController extends Controller
             return [
                 'name' => $c->getName(),
                 'type' => $c->getType(),
-                'target' => $c->getTarget(), // this condition will be applied to cart's subtotal when getSubTotal() is called.
+                'target' => $c->getTarget(),
                 'value' => $c->getValue(),
             ];
         });
@@ -163,7 +163,7 @@ class CartController extends Controller
             return [
                 'name' => $c->getName(),
                 'type' => $c->getType(),
-                'target' => $c->getTarget(), // this condition will be applied to cart's subtotal when getSubTotal() is called.
+                'target' => $c->getTarget(),
                 'value' => $c->getValue(),
                 'calculated_value' => $c->parsedRawValue,
             ];
