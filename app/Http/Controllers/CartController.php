@@ -9,6 +9,8 @@
 namespace App\Http\Controllers;
 
 
+use Darryldecode\Cart\CartCondition;
+
 class CartController extends Controller
 {
     public function index()
@@ -56,7 +58,69 @@ class CartController extends Controller
             ]
         ];
 
-        \Cart::session($userId)->add($id, $name, $price, $qty, $customAttributes);
+        $item = \Cart::session($userId)->add($id, $name, $price, $qty, $customAttributes);
+
+        return response(array(
+            'success' => true,
+            'data' => $item,
+            'message' => "item added."
+        ),201,[]);
+    }
+
+    public function addCondition()
+    {
+        $userId = 1; // get this from session or wherever it came from
+
+        /** @var \Illuminate\Validation\Validator $v */
+        $v = validator(request()->all(),[
+            'name' => 'required|string',
+            'type' => 'required|string',
+            'target' => 'required|string',
+            'value' => 'required|string',
+        ]);
+
+        if($v->fails())
+        {
+            return response(array(
+                'success' => false,
+                'data' => [],
+                'message' => $v->errors()->first()
+            ),200,[]);
+        }
+
+        $name = request('name');
+        $type = request('type');
+        $target = request('target');
+        $value = request('value');
+
+        $cartCondition = new CartCondition([
+            'name' => $name,
+            'type' => $type,
+            'target' => $target, // this condition will be applied to cart's subtotal when getSubTotal() is called.
+            'value' => $value,
+            'attributes' => array()
+        ]);
+
+        \Cart::session($userId)->condition($cartCondition);
+
+        return response(array(
+            'success' => true,
+            'data' => $cartCondition,
+            'message' => "condition added."
+        ),201,[]);
+    }
+
+    public function clearCartConditions()
+    {
+        $userId = 1; // get this from session or wherever it came from
+
+        \Cart::session($userId)->clearCartConditions();
+
+        return response(array(
+            'success' => true,
+            'data' => [],
+            'message' => "cart conditions cleared."
+        ),200,[]);
     }
 
     public function delete($id)
@@ -76,12 +140,43 @@ class CartController extends Controller
     {
         $userId = 1; // get this from session or wherever it came from
 
+        // get subtotal applied condition amount
+        $conditions = \Cart::session($userId)->getConditions();
+
+
+        // get conditions that are applied to cart sub totals
+        $subTotalConditions = $conditions->filter(function (CartCondition $condition) {
+            return $condition->getTarget() == 'subtotal';
+        })->map(function(CartCondition $c) use ($userId) {
+            return [
+                'name' => $c->getName(),
+                'type' => $c->getType(),
+                'target' => $c->getTarget(), // this condition will be applied to cart's subtotal when getSubTotal() is called.
+                'value' => $c->getValue(),
+            ];
+        });
+
+        // get conditions that are applied to cart totals
+        $totalConditions = $conditions->filter(function (CartCondition $condition) {
+            return $condition->getTarget() == 'total';
+        })->map(function(CartCondition $c) {
+            return [
+                'name' => $c->getName(),
+                'type' => $c->getType(),
+                'target' => $c->getTarget(), // this condition will be applied to cart's subtotal when getSubTotal() is called.
+                'value' => $c->getValue(),
+                'calculated_value' => $c->parsedRawValue,
+            ];
+        });
+
         return response(array(
             'success' => true,
             'data' => array(
                 'total_quantity' => \Cart::session($userId)->getTotalQuantity(),
                 'sub_total' => \Cart::session($userId)->getSubTotal(),
                 'total' => \Cart::session($userId)->getTotal(),
+                'cart_sub_total_conditions_count' => $subTotalConditions->count(),
+                'cart_total_conditions_count' => $totalConditions->count(),
             ),
             'message' => "Get cart details success."
         ),200,[]);

@@ -70,7 +70,7 @@ class WishListController extends Controller
                 'sub_total' => $wish_list->getSubTotal(),
                 'total' => $wish_list->getTotal(),
             ),
-            'message' => "Get cart details success."
+            'message' => "Get wishlist details success."
         ),200,[]);
     }
 }
