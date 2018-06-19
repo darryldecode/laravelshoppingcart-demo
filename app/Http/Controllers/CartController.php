@@ -165,7 +165,6 @@ class CartController extends Controller
                 'type' => $c->getType(),
                 'target' => $c->getTarget(),
                 'value' => $c->getValue(),
-                'calculated_value' => $c->parsedRawValue,
             ];
         });
 
