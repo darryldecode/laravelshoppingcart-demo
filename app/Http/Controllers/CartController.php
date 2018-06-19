@@ -85,7 +85,7 @@ class CartController extends Controller
                 'success' => false,
                 'data' => [],
                 'message' => $v->errors()->first()
-            ),200,[]);
+            ),400,[]);
         }
 
         $name = request('name');
